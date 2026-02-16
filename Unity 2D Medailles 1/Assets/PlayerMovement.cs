@@ -3,6 +3,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float speed = 3f;
+    private float defaultSpeed;
 
     private Rigidbody2D body;
     private Vector2 axisMovement;
@@ -10,8 +11,25 @@ public class PlayerMovement : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
+        defaultSpeed = speed; // Sla de originele snelheid op
         body = GetComponent<Rigidbody2D>();
+    }
+
+    // Week 5: Functie om de snelheid tijdelijk aan te passen
+    public void ActivatePowerUp(float speedMultiplier, float duration)
+    {
+        StartCoroutine(PowerUpRoutine(speedMultiplier, duration));
+    }
+
+    private System.Collections.IEnumerator PowerUpRoutine(float multiplier, float duration)
+    {
+        speed *= multiplier; // Verhoog of verlaag de snelheid
+        Debug.Log($"PowerUp Active! Speed is now: {speed}");
+
+        yield return new WaitForSeconds(duration); // Wacht voor de duur van de power-up
+
+        speed = defaultSpeed; // Zet de snelheid terug naar normaal
+        Debug.Log("PowerUp ended. Speed reset.");
     }
 
     // Update is called once per frame
