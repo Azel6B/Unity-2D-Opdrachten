@@ -1,67 +1,85 @@
 using UnityEngine;
+using System.Collections;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float speed = 3f;
+    [Header("Movement Settings")]
+    [SerializeField] private float speed = 8f;
+    [SerializeField] private float jumpForce = 12f;
     private float defaultSpeed;
 
-    private Rigidbody2D body;
-    private Vector2 axisMovement;
+    [Header("Detection")]
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private float checkRadius = 0.2f;
+    [SerializeField] private LayerMask groundLayer;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private Rigidbody2D body;
+    private float horizontalInput;
+    private bool isGrounded;
+
     void Start()
     {
-        defaultSpeed = speed; // Sla de originele snelheid op
+        defaultSpeed = speed;
         body = GetComponent<Rigidbody2D>();
+
+        // Ensure the character doesn't tip over
+        body.freezeRotation = true;
     }
 
-    // Week 5: Functie om de snelheid tijdelijk aan te passen
-    public void ActivatePowerUp(float speedMultiplier, float duration)
-    {
-        StartCoroutine(PowerUpRoutine(speedMultiplier, duration));
-    }
-
-    private System.Collections.IEnumerator PowerUpRoutine(float multiplier, float duration)
-    {
-        speed *= multiplier; // Verhoog of verlaag de snelheid
-        Debug.Log($"PowerUp Active! Speed is now: {speed}");
-
-        yield return new WaitForSeconds(duration); // Wacht voor de duur van de power-up
-
-        speed = defaultSpeed; // Zet de snelheid terug naar normaal
-        Debug.Log("PowerUp ended. Speed reset.");
-    }
-
-    // Update is called once per frame
     void Update()
     {
-       axisMovement.x = Input.GetAxisRaw("Horizontal");
-       axisMovement.y = Input.GetAxisRaw("Vertical");
+        // A and D movement
+        horizontalInput = Input.GetAxisRaw("Horizontal");
+
+        // Ground check logic
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, groundLayer);
+
+        // Jump with W (only if touching the ground)
+        if (Input.GetKeyDown(KeyCode.W) && isGrounded)
+        {
+            body.linearVelocity = new Vector2(body.linearVelocity.x, jumpForce);
+        }
+
+        CheckForFlipping();
     }
 
     private void FixedUpdate()
     {
         Move();
-
     }
+
     private void Move()
     {
-        body.linearVelocity = axisMovement.normalized * speed;
-        CheckForFlipping();
+        // We only set the X velocity and keep the current Y velocity (so gravity works!)
+        body.linearVelocity = new Vector2(horizontalInput * speed, body.linearVelocity.y);
     }
+
     private void CheckForFlipping()
     {
-        bool movingLeft = axisMovement.x < 0;
-        bool movingRight = axisMovement.x > 0;
-
-        if(movingLeft)
+        if (horizontalInput < 0)
         {
-            transform.localScale = new Vector3(-1f, transform.localScale.y);
+            transform.localScale = new Vector3(-1f, transform.localScale.y, 1f);
         }
-
-        if(movingRight)
+        else if (horizontalInput > 0)
         {
-            transform.localScale = new Vector3(1f, transform.localScale.y);
+            transform.localScale = new Vector3(1f, transform.localScale.y, 1f);
         }
+    }
+
+    // Week 5: PowerUp Logic preserved
+    public void ActivatePowerUp(float speedMultiplier, float duration)
+    {
+        StartCoroutine(PowerUpRoutine(speedMultiplier, duration));
+    }
+
+    private IEnumerator PowerUpRoutine(float multiplier, float duration)
+    {
+        speed *= multiplier;
+        Debug.Log($"PowerUp Active! Speed is now: {speed}");
+
+        yield return new WaitForSeconds(duration);
+
+        speed = defaultSpeed;
+        Debug.Log("PowerUp ended. Speed reset.");
     }
 }
