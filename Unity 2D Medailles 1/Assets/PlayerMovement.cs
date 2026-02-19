@@ -50,7 +50,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void Move()
     {
-        // We only set the X velocity and keep the current Y velocity (so gravity works!)
         body.linearVelocity = new Vector2(horizontalInput * speed, body.linearVelocity.y);
     }
 
@@ -66,7 +65,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // Week 5: PowerUp Logic preserved
+    //PowerUp Logic preserved
     public void ActivatePowerUp(float speedMultiplier, float duration)
     {
         StartCoroutine(PowerUpRoutine(speedMultiplier, duration));
