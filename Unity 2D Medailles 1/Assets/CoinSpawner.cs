@@ -21,6 +21,7 @@ public class CoinSpawner : MonoBehaviour
         {
             SpawnCoins();
             hasSpawned = true;
+            Destroy(gameObject, 1f); // Verwijder de spawner na een korte delay
         }
     }
 

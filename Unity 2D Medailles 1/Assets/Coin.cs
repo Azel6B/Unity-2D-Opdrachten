@@ -3,9 +3,9 @@ using UnityEngine;
 public class Coin : MonoBehaviour
 {
     [SerializeField] private int coinValue = 1;
-    [SerializeField] private AudioClip collectSound; 
+    [SerializeField] private AudioClip collectSound;
 
-    private CoinSpawner mySpawner; // Referentie naar de spawner die deze munt heeft gemaakt
+    private CoinSpawner mySpawner;
 
     public void SetSpawner(CoinSpawner spawner)
     {
@@ -21,13 +21,14 @@ public class Coin : MonoBehaviour
                 AudioSource.PlayClipAtPoint(collectSound, transform.position);
             }
 
-            // Vertel de spawner dat deze munt is opgepakt
             if (mySpawner != null)
             {
                 mySpawner.OnCoinCollected();
             }
 
             GameManager.Instance.AddScore(coinValue);
+            GameManager.Instance.CheckWinCondition();  
+
             Destroy(gameObject);
         }
     }
